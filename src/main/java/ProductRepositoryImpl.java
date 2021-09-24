@@ -22,10 +22,11 @@ public class ProductRepositoryImpl implements ProductRepository {
         this.statement = connection.createStatement();
     }
 
+    /**
+     * Осуществляет создание таблицы типа {@link Product} в базе.
+     */
     public void createTable() {
-        String query = "create extension if not exists " +
-                "drop type if exists product_category;" +
-                "create table if not exists product (" +
+        String query = "create table if not exists product (" +
                 " id uuid," +
                 " name varchar(32)," +
                 " description varchar(32)," +
@@ -43,13 +44,18 @@ public class ProductRepositoryImpl implements ProductRepository {
         }
     }
 
+    /**
+     * Осуществляет удаление таблицы типа {@link Product} из базе.
+     */
     public void dropTable() throws SQLException {
         String query = "drop table product";
         int updatedRowCount = statement.executeUpdate(query);
         System.out.println(".dropTable completed updatedRowsCount = " + updatedRowCount);
     }
 
-
+    /**
+     * Осуществляет поиск объекта типа {@link Product} по id.
+     */
     @Override
     public Product findById(UUID id) {
         String query = "select * from product where id::text = '" + id.toString() + "';";
@@ -88,6 +94,9 @@ public class ProductRepositoryImpl implements ProductRepository {
         }
     }
 
+    /**
+     * Осуществляет удаление объекта типа {@link Product} по id.
+     */
     @Override
     public void deleteById(UUID id) {
         try {
@@ -98,6 +107,9 @@ public class ProductRepositoryImpl implements ProductRepository {
         }
     }
 
+    /**
+     * Осуществляет сохранение/обновление объекта типа {@link Product}.
+     */
     @Override
     public Product save(Product product) {
         if (product.id != null) {
@@ -147,11 +159,14 @@ public class ProductRepositoryImpl implements ProductRepository {
         return product;
     }
 
+    /**
+     * Осуществляет поиск объектов типа {@link Product} по категории.
+     */
     @Override
     public List<Product> findAllByCategory(ProductCategory category) {
         List<Product> products = new ArrayList<>();
 
-        String query = "select * from product where category =" + category.toString();
+        String query = "select * from product where category = any(array['" + category.toString() + "']);";
 
         try {
             ResultSet resultSet = statement.executeQuery(query);
